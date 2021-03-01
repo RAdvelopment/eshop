@@ -1,0 +1,26 @@
+
+
+.form-login{
+
+    background-image: url('../../../img/backlogin.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    height: 97vh;
+    text-align: center;
+    h2{
+        text-align: center;
+        padding-top: 15rem;
+        padding-bottom: 15px
+    }
+    button{
+        background-color: #29e;
+        width: 50%;
+        border: none;
+    }
+
+    .ant-input{
+        height: 2rem;
+    }
+
+}
