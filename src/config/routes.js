@@ -2,6 +2,7 @@ import Login from "../pages/admin/Login";
 import Register from "../pages/admin/Login/Register";
 import AdminPage from "../pages/admin/AdminPage";
 import Landing from "../pages/Landing";
+import Products from "../pages/admin/AdminPage/Products";
 
 const routes = [
   {
@@ -23,6 +24,13 @@ const routes = [
     path: "/admin",
     component: AdminPage,
     exact: false,
+    routes: [
+      {
+        path: "/admin/products",
+        component: Products,
+        exact: true,
+      },
+    ],
   },
 ];
 
