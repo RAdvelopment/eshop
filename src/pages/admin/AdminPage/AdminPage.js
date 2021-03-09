@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Menu } from "antd";
-import { PoweroffOutlined } from "@ant-design/icons";
+import { PoweroffOutlined, HomeOutlined } from "@ant-design/icons";
 import { Route, Redirect, Switch } from "react-router-dom";
 
 import "./AdminPage.scss";
@@ -8,8 +8,8 @@ import "./AdminPage.scss";
 const { Item } = Menu;
 
 export default function AdminPage(props) {
-  const [selected, setSelected] = useState("/admin");
-  const [actualRoute, setActualRoute] = useState("/admin");
+  const [selected, setSelected] = useState("/admin/products");
+  const [actualRoute, setActualRoute] = useState("/admin/products");
 
   const { routes } = props;
 
@@ -35,19 +35,29 @@ export default function AdminPage(props) {
         onClick={setHref}
         selectedKeys={selected}
       >
+        <Item key="/">
+          <HomeOutlined />
+        </Item>
         <Item className="menu-admin__item" key="/admin/products">
           Productos
         </Item>
         <Item className="menu-admin__item" key="/admin/users">
           Usuarios
         </Item>
+        <Item className="menu-admin__item" key="/admin/selled">
+          Productos Vendidos
+        </Item>
         <Item className="menu-admin__off" onClick={off}>
           <PoweroffOutlined />
         </Item>
       </Menu>
       <LoadRoutes routes={routes} />
-      <Route exact path="/admin">
-        {tokenApi ? <Redirect to="/admin" /> : <Redirect to="/login" />}
+      <Route exact path="/admin/products">
+        {tokenApi ? (
+          <Redirect to="/admin/products" />
+        ) : (
+          <Redirect to="/login" />
+        )}
       </Route>
       <Redirect to={actualRoute} />
     </div>

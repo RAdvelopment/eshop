@@ -1,37 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, Badge } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export default function MenuLanding(props) {
-  const [selected, setSelected] = useState("/");
-  const [actualRoute, setActualRoute] = useState("/");
+export default function MenuLanding({ reload }) {
+  const [dataArray, setDataArray] = useState([]);
 
-  const { dataCart } = props;
+  const dataLocal = localStorage.getItem("cartData");
 
-  const setKeys = (e) => {
-    setSelected(e.key);
-    setActualRoute(e.key);
-  };
+  useEffect(() => {
+    if (dataLocal) {
+      var dataSplit = dataLocal.split(",");
+      setDataArray(dataSplit);
+    }
+  }, [reload, dataLocal]);
 
   return (
     <>
       <Menu
         mode="horizontal"
-        selectedKeys={selected}
-        onClick={setKeys}
+        selectedKeys={window.location.pathname}
         style={{ height: "50px" }}
       >
-        <Menu.Item key="/">Inicio</Menu.Item>
-        <Menu.Item key="login">Iniciar Sesión</Menu.Item>
-        <Menu.Item key="register">Registrarse</Menu.Item>
-        <Menu.Item key="shop">
-          <Badge count={dataCart}>
-            <ShoppingCartOutlined />
-          </Badge>
+        <Menu.Item key="/">
+          <Link to={"/"}>Inicio</Link>
+        </Menu.Item>
+        <Menu.Item key="/login">
+          <Link to={"/login"}>Iniciar Sesión</Link>
+        </Menu.Item>
+        <Menu.Item key="/register">
+          <Link to={"/register"}>Registrarse</Link>
+        </Menu.Item>
+        <Menu.Item key="/shop">
+          <Link to={"/shop"}>
+            <Badge count={dataArray.length}>
+              <ShoppingCartOutlined />
+            </Badge>
+          </Link>
         </Menu.Item>
       </Menu>
-      <Redirect to={actualRoute} />
     </>
   );
 }

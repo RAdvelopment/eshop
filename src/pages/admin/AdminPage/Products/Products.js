@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { List, Avatar, Button, notification, Spin, Input, Form } from "antd";
+import {
+  List,
+  Avatar,
+  Button,
+  notification,
+  Spin,
+  Input,
+  Form,
+  Modal as ModalAntd,
+} from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   getProductApi,
   deleteProductApi,
   createProductApi,
+  updateProductApi,
 } from "../../../../api/product";
 import Modal from "../../../../components/Modal";
+import "./Products.scss";
 
 export default function Products() {
   const [dataApi, setDataApi] = useState(null);
+  const [reload, setReload] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
+  const [visibleModalEdit, setVisibleModalEdit] = useState(false);
+  const [dataId, setDataId] = useState("");
 
   useEffect(() => {
     getProductApi().then((response) => {
@@ -23,7 +37,7 @@ export default function Products() {
         setDataApi(productsData);
       }
     });
-  }, [dataApi]);
+  }, [reload]);
 
   const deleteProduct = (id) => {
     if (!id) {
@@ -34,9 +48,16 @@ export default function Products() {
     } else {
       notification["success"]({
         message: "Producto eliminado correctamente",
+        placement: "topLeft",
       });
       deleteProductApi(id);
+      setReload(!reload);
     }
+  };
+
+  const setId = (id) => {
+    setVisibleModalEdit(true);
+    setDataId(id);
   };
 
   return (
@@ -51,11 +72,24 @@ export default function Products() {
       </Button>
       <Modal
         title="Crear nuevo producto"
-        content={<AddProductForm />}
+        content={
+          <AddProductForm
+            setReload={setReload}
+            reload={reload}
+            setVisibleModal={setVisibleModal}
+          />
+        }
         isVisibleModal={visibleModal}
         setVisibleModal={setVisibleModal}
       />
-      <List itemLayout="horizontal">
+      <EditProductModal
+        reload={reload}
+        setReload={setReload}
+        id={dataId}
+        visibleModalEdit={visibleModalEdit}
+        setVisibleModalEdit={setVisibleModalEdit}
+      />
+      <List itemLayout="horizontal" className="list-product">
         {dataApi ? (
           dataApi.map((data) => {
             return (
@@ -66,11 +100,15 @@ export default function Products() {
                   description={`Descripción: ${data.description} || Cantidad: ${data.quantity} || Precio: ${data.price}`}
                 />
                 <div>
-                  <Button>
+                  <Button type="primary" onClick={() => setId(data._id)}>
                     <EditOutlined />
                   </Button>
 
-                  <Button onClick={() => deleteProduct(data._id)}>
+                  <Button
+                    type="primary"
+                    danger
+                    onClick={() => deleteProduct(data._id)}
+                  >
                     <DeleteOutlined />
                   </Button>
                 </div>
@@ -85,7 +123,95 @@ export default function Products() {
   );
 }
 
-function AddProductForm() {
+function EditProductModal({
+  visibleModalEdit,
+  setVisibleModalEdit,
+  id,
+  setReload,
+  reload,
+}) {
+  const [dataEdit, setDataEdit] = useState({});
+
+  const updateProductData = async () => {
+    if (
+      !dataEdit.title ||
+      !dataEdit.description ||
+      !dataEdit.quantity ||
+      !dataEdit.price ||
+      !dataEdit.img
+    ) {
+      notification["warning"]({
+        message: "Los datos son obligatorios, no deje datos en blanco.",
+      });
+    } else {
+      updateProductApi(dataEdit, id).then(() => {
+        notification["success"]({
+          message: "Datos actualizados correctamente",
+        });
+      });
+      setReload(!reload);
+      setDataEdit({});
+      setVisibleModalEdit(false);
+    }
+  };
+
+  const changeData = (e) => {
+    setDataEdit({
+      ...dataEdit,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  return (
+    <ModalAntd
+      title="Editar Producto"
+      visible={visibleModalEdit}
+      footer={false}
+      onCancel={() => setVisibleModalEdit(false)}
+    >
+      <Form onFinish={updateProductData} onChange={changeData}>
+        <Form.Item>
+          <Input
+            name="title"
+            value={dataEdit.title}
+            placeholder="Título del producto"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Input
+            name="description"
+            value={dataEdit.description}
+            placeholder="Descripción del producto"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Input
+            name="quantity"
+            value={dataEdit.quantity}
+            placeholder="Cantidad de productos disponibles"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Input name="price" value={dataEdit.price} placeholder="Precio" />
+        </Form.Item>
+        <Form.Item>
+          <Input
+            name="img"
+            value={dataEdit.img}
+            placeholder="Url de la imágen del producto"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" style={{ width: "100%" }} htmlType="submit">
+            Enviar datos
+          </Button>
+        </Form.Item>
+      </Form>
+    </ModalAntd>
+  );
+}
+
+function AddProductForm({ reload, setReload, setVisibleModal }) {
   const [dataForm, setDataForm] = useState({
     title: "",
     description: "",
@@ -111,6 +237,9 @@ function AddProductForm() {
           message: "Datos enviados correctamente",
         });
       });
+      setReload(!reload);
+      setVisibleModal(false);
+      setDataForm({});
     }
   };
 
