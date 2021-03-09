@@ -28,3 +28,7 @@ Your app is ready to be deployed!
 # Installation
 If you want install and run the project, you need install the dependencies necesaries, please type npm i on the console, if this doesn't work please read the
 package.json and install the dependencias with yarn.
+
+
+### SPA configuration for Netlify
+if you want run this app in netlify please add the "_redirects" file in the folder public and add this line of code _/*   /index.html   200_ 
